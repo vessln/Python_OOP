@@ -1,6 +1,6 @@
 from unittest import TestCase, main
 
-from project.robot import Robot
+from robot import Robot
 
 
 class RobotTest(TestCase):
