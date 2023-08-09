@@ -5,40 +5,46 @@ from project.vehicles.passenger_car import PassengerCar
 
 
 class ManagingApp:
-    VEH_TYPES = {"PassengerCar": PassengerCar, "CargoVan": CargoVan}
+    VEHICLE_TYPES = {"PassengerCar": PassengerCar, "CargoVan": CargoVan}
 
     def __init__(self):
         self.users = []
         self.vehicles = []
         self.routes = []
 
+    @staticmethod
+    def create_new_user(f_name, l_name, driving_license_num):
+        return User(f_name, l_name, driving_license_num)
+
+    def find_user_by_driving_license_number(self, dr_lic_num):
+        return [u for u in self.users if u.driving_license_number == dr_lic_num]
+
+    def find_vehicle_by_license_pl_number(self, lic_pl_num):
+        return [v for v in self.vehicles if v.license_plate_number == lic_pl_num]
+
+    def get_first_count_of_damaged_vehicles(self, n):
+        damaged_vehicles = [v for v in self.vehicles if v.is_damaged is True]
+        sort_vehicles = sorted(damaged_vehicles, key=lambda v: (v.brand, v.model))
+        return sort_vehicles[:n]
+
     def register_user(self, first_name, last_name, driving_license_number):
-        for obj_user in self.users:
-            if obj_user.driving_license_number == driving_license_number:
-                return f"{driving_license_number} has already been registered to our platform."
+        if self.find_user_by_driving_license_number(driving_license_number):
+            return f"{driving_license_number} has already been registered to our platform."
 
         new_user = self.create_new_user(first_name, last_name, driving_license_number)
         self.users.append(new_user)
         return f"{first_name} {last_name} was successfully registered under DLN-{driving_license_number}"
 
-    @staticmethod
-    def create_new_user(f_name, l_name, driving_license_num):
-        return User(f_name, l_name, driving_license_num)
-
     def upload_vehicle(self, vehicle_type, brand, model, license_plate_number):
-        if vehicle_type not in ManagingApp.VEH_TYPES:
+        if vehicle_type not in ManagingApp.VEHICLE_TYPES.keys():
             return f"Vehicle type {vehicle_type} is inaccessible."
 
-        for vehicle_obj in self.vehicles:
-            if vehicle_obj.license_plate_number == license_plate_number:
-                return f"{license_plate_number} belongs to another vehicle."
+        if self.find_vehicle_by_license_pl_number(license_plate_number):
+            return f"{license_plate_number} belongs to another vehicle."
 
-        new_vehicle = self.create_new_vehicle_from_type(vehicle_type, brand, model, license_plate_number)
+        new_vehicle = ManagingApp.VEHICLE_TYPES[vehicle_type](brand, model, license_plate_number)
         self.vehicles.append(new_vehicle)
         return f"{brand} {model} was successfully uploaded with LPN-{license_plate_number}."
-
-    def create_new_vehicle_from_type(self, v_type, brand, model, license_plate_num):
-        return ManagingApp.VEH_TYPES[v_type](brand, model, license_plate_num)
 
     def allow_route(self, start_point, end_point, length):
         for route_ob in self.routes:
@@ -51,17 +57,14 @@ class ManagingApp:
             if route_ob.start_point == start_point and route_ob.end_point == end_point and route_ob.length > length:
                 route_ob.is_locked = True
 
-        new_route = self.create_new_route(start_point, end_point, length)
+        id_new_route = len(self.routes) + 1
+        new_route = Route(start_point, end_point, length, id_new_route)
         self.routes.append(new_route)
         return f"{start_point}/{end_point} - {length} km is unlocked and available to use."
 
-    def create_new_route(self, start_p, end_p, length):
-        id_ = len(self.routes) + 1
-        return Route(start_p, end_p, length, id_)
-
     def make_trip(self, driving_license_number, license_plate_number, route_id, is_accident_happened):
-        current_user = [u for u in self.users if u.driving_license_number == driving_license_number][0]
-        current_vehicle = [v for v in self.vehicles if v.license_plate_number == license_plate_number][0]
+        current_user = self.find_user_by_driving_license_number(driving_license_number)[0]
+        current_vehicle = self.find_vehicle_by_license_pl_number(license_plate_number)[0]
         current_route = [r for r in self.routes if r.route_id == route_id][0]
 
         if current_user.is_blocked:
@@ -85,17 +88,12 @@ class ManagingApp:
         return current_vehicle.__str__()
 
     def repair_vehicles(self, count):
-        vehicles_for_repair = self.order_first_count_of_damaged_vehicles(count)
+        vehicles_for_repair = self.get_first_count_of_damaged_vehicles(count)
         for vehicle_obj in vehicles_for_repair:
             vehicle_obj.is_damaged = False
             vehicle_obj.battery_level = 100
 
         return f"{len(vehicles_for_repair)} vehicles were successfully repaired!"
-
-    def order_first_count_of_damaged_vehicles(self, n):
-        damaged_vehicles = [v for v in self.vehicles if v.is_damaged is True]
-        sort_vehicles = sorted(damaged_vehicles, key=lambda v: (v.brand, v.model))
-        return sort_vehicles[:n]
 
     def users_report(self):
         arranged_users = sorted(self.users, key=lambda u: -u.rating)
@@ -104,9 +102,6 @@ class ManagingApp:
             result += f"\n{el.__str__()}"
 
         return result
-
-
-
 
 
 
