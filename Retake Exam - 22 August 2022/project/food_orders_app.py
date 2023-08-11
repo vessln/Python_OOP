@@ -21,14 +21,11 @@ class FoodOrdersApp:
     def find_client_by_number(self, number):
         return [c for c in self.clients_list if c.phone_number == number]
 
-    def create_new_client(self, number):
-        return Client(number)
-
     def register_client(self, client_phone_number):
         if self.find_client_by_number(client_phone_number):
             raise Exception("The client has already been registered!")
 
-        new_client = self.create_new_client(client_phone_number)
+        new_client = Client(client_phone_number)
         self.clients_list.append(new_client)
         return f"Client {client_phone_number} registered successfully."
 
@@ -48,8 +45,9 @@ class FoodOrdersApp:
             raise Exception("The menu is not ready!")
 
         client_obj = self.find_client_by_number(client_phone_number)
+
         if not client_obj:
-            client_obj = self.create_new_client(client_phone_number)
+            client_obj = Client(client_phone_number)
             self.clients_list.append(client_obj)
 
         client = client_obj[0]
@@ -70,6 +68,7 @@ class FoodOrdersApp:
             current_ordered_meals.append(meal)
             current_bill += meal.price * qnt
             meal.quantity -= qnt
+
             if meal_name not in client.ordered_meals_qnt:
                 client.ordered_meals_qnt[meal_name] = 0
             client.ordered_meals_qnt[meal_name] += qnt
