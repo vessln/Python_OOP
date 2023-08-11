@@ -13,11 +13,9 @@ class HorseRaceApp:
         self.jockeys = []
         self.horse_races = []
 
-    def find_horse_by_name(self, name):
-        return [ob for ob in self.horses if ob.name == name]
-
-    def find_jockey_by_name(self, name):
-        return [ob for ob in self.jockeys if ob.name == name]
+    @staticmethod
+    def find_object_by_name(name, list_objects):
+        return [ob for ob in list_objects if ob.name == name]
 
     def find_race_by_type(self, r_type):
         return [r for r in self.horse_races if r.race_type == r_type]
@@ -26,7 +24,7 @@ class HorseRaceApp:
         return [h for h in self.horses if type(h).__name__ == h_type]
 
     def add_horse(self, horse_type, horse_name, horse_speed):
-        if self.find_horse_by_name(horse_name):
+        if self.find_object_by_name(horse_name, self.horses):
             raise Exception(f"Horse {horse_name} has been already added!")
 
         if horse_type in self.VALID_HORSE_BREEDS.keys():
@@ -35,7 +33,7 @@ class HorseRaceApp:
             return f"{horse_type} horse {horse_name} is added."
 
     def add_jockey(self, jockey_name, age):
-        if self.find_jockey_by_name(jockey_name):
+        if self.find_object_by_name(jockey_name, self.jockeys):
             raise Exception(f"Jockey {jockey_name} has been already added!")
 
         new_jockey = Jockey(jockey_name, age)
@@ -51,7 +49,7 @@ class HorseRaceApp:
         return f"Race {race_type} is created."
 
     def add_horse_to_jockey(self, jockey_name, horse_type):
-        given_jockey = self.find_jockey_by_name(jockey_name)
+        given_jockey = self.find_object_by_name(jockey_name, self.jockeys)
         if not given_jockey:
             raise Exception(f"Jockey {jockey_name} could not be found!")
 
@@ -75,7 +73,7 @@ class HorseRaceApp:
         if not current_race:
             raise Exception(f"Race {race_type} could not be found!")
 
-        current_jockey = self.find_jockey_by_name(jockey_name)
+        current_jockey = self.find_object_by_name(jockey_name, self.jockeys)
         if not current_jockey:
             raise Exception(f"Jockey {jockey_name} could not be found!")
 
@@ -108,15 +106,6 @@ class HorseRaceApp:
 
         return f"The winner of the {race_type} race, with a speed of " \
                f"{highest_speed}km/h is {winner.name}! Winner's horse: {horse_name}."
-
-
-
-
-
-
-
-
-
 
 
 
