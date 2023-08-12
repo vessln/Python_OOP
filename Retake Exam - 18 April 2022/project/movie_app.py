@@ -17,7 +17,8 @@ class MovieApp:
             self.users_collection.append(new_user)
             return f"{username} registered successfully."
 
-        if user[0] in self.users_collection:
+        current_user = user[0]
+        if current_user in self.users_collection:
             raise Exception("User already exists!")
 
     def upload_movie(self, username, movie):
@@ -48,15 +49,8 @@ class MovieApp:
         if movie.owner.username != user.username:
             raise Exception(f"{username} is not the owner of the movie {movie.title}!")
 
-        for attrb, new_value in kwargs.items():
-            if attrb == "title":
-                movie.title = new_value
-
-            elif attrb == "year":
-                movie.year = new_value
-
-            elif attrb == "age_restriction":
-                movie.age_restriction = new_value
+        for current_attr, new_value in kwargs.items():
+            setattr(movie, current_attr, new_value)
 
         return f"{username} successfully edited {movie.title} movie."
 

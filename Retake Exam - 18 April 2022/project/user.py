@@ -29,7 +29,6 @@ class User:
         result = [f"Username: {self.username}, Age: {self.age}", "Liked movies:"]
         if not self.movies_liked:
             result.append("No movies liked.")
-
         else:
             result.extend([m.details() for m in self.movies_liked])
 
